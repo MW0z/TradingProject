@@ -3,26 +3,107 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <deque>
 
 //using namespace std;
 
+/** Trade Struct. Consider Example:
+    Field	Value	Meaning
+1. Trade ID	4926538690	Unique trade identifier
+2. Price	105573.74000000	Price at which the trade happened
+3. Quantity	0.00004000	Amount of asset traded
+4. Quote quantity	4.22294960	Price × quantity (in quote asset, e.g., USDT)
+5. Timestamp	1747699202961008	Time in microseconds or nanoseconds
+6. Is Buyer Market Maker	False	True if the buyer is the market maker
+7. Is Best Match	True	Whether this trade is the best match (used by Binance)
+ */
+
+struct Trade {
+    long long tradeID;
+    double price;
+    double quantity;
+    double quoteQuantity;
+    long long timestamp;
+    bool isBuyerMaker;
+    bool isBestMatch;
+};
+
 int main() {
-    std::cout << "Hello world";
 
     // Reading the CSV File
     std::ifstream file("BTCUSDT-trades-2025-05-20.csv");
     std::string line, value;
+    std::deque<Trade> ma50; // Moving Average 50.
 
-    // Returns all the values in the CSV file.
-    while (std::getline(file, line)) {
-        std::stringstream s(line);
-        while (std::getline(s, value, ',')) {
-            std::cout << value << ", ";
+    // Returns the first 100 values from our csv file.
+    for (int i = 0; i<2;i++){
+        std::getline(file, line);
+        std::stringstream s (line);
+        
+        Trade t;
+        std::getline(s, value, ',');
+        t.tradeID = std::stoll(value);
+
+        std::getline(s, value, ',');
+        t.price = std::stod(value);
+
+        std::getline(s, value, ',');
+        t.quantity = std::stod(value);
+
+        std::getline(s, value, ',');
+        t.quoteQuantity = std::stod(value);
+
+        std::getline(s, value, ',');
+        t.timestamp = std::stoll(value);
+
+        std::getline(s, value, ',');
+        if (value == "True"){
+            t.isBuyerMaker = true;
         }
+        else{
+            t.isBuyerMaker = false;
+        }
+        
+
+        std::getline(s, value, ',');
+        if (value == "True"){
+            t.isBestMatch = true;
+        }
+        else{
+            t.isBestMatch = false;
+        }
+
+        ma50.push_back(t);
+
+
+
+        while (std::getline(s, value, ',')) {
+            std::cout << value << " ";
+        }
+        
+
+
         std::cout << std::endl;
     }
+
+    for (Trade n : ma50) {
+        std::cout << "Trade ID: " << n.tradeID
+                << ", Price: " << n.price
+                << ", Quantity: " << n.quantity
+                << ", Quote Quantity: " << n.quoteQuantity
+                << ", Timestamp: " << n.timestamp
+                << ", Buyer Maker: " << (n.isBuyerMaker ? "True" : "False")
+                << ", Best Match: " << (n.isBestMatch ? "True" : "False")
+                << std::endl;
+    }
+    
+
     return 0;
 }
+
+
+
+
 
 //// Step 2: Get Market Data --- 
 // Option A (easier): Download historical price data (CSV)
