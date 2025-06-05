@@ -34,9 +34,10 @@ int main() {
     std::ifstream file("BTCUSDT-trades-2025-05-20.csv");
     std::string line, value;
     std::deque<Trade> ma50; // Moving Average 50.
+    double currentAverage50;
 
     // Returns the first 100 values from our csv file.
-    for (int i = 0; i<2;i++){
+    for (int i = 0; i<100;i++){
         std::getline(file, line);
         std::stringstream s (line);
         
@@ -74,28 +75,24 @@ int main() {
         }
 
         ma50.push_back(t);
+        if(ma50.size()>50){
+            ma50.pop_front();
+        }        
 
-
-
-        while (std::getline(s, value, ',')) {
-            std::cout << value << " ";
-        }
-        
-
-
-        std::cout << std::endl;
     }
 
-    for (Trade n : ma50) {
-        std::cout << "Trade ID: " << n.tradeID
-                << ", Price: " << n.price
-                << ", Quantity: " << n.quantity
-                << ", Quote Quantity: " << n.quoteQuantity
-                << ", Timestamp: " << n.timestamp
-                << ", Buyer Maker: " << (n.isBuyerMaker ? "True" : "False")
-                << ", Best Match: " << (n.isBestMatch ? "True" : "False")
+    for (Trade t : ma50) {
+        std::cout << "Trade ID: " << t.tradeID
+                << ", Price: " << t.price
+                << ", Quantity: " << t.quantity
+                << ", Quote Quantity: " << t.quoteQuantity
+                << ", Timestamp: " << t.timestamp
+                << ", Buyer Maker: " << (t.isBuyerMaker ? "True" : "False")
+                << ", Best Match: " << (t.isBestMatch ? "True" : "False")
                 << std::endl;
     }
+
+    std::cout << ma50.size();
     
 
     return 0;
